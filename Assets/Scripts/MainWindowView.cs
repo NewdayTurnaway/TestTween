@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace Tween
 {
-    internal class MainWindowView : MonoBehaviour
+    internal sealed class MainWindowView : MonoBehaviour
     {
         [Header("Popup")]
         [SerializeField] private Button _buttonOpenPopup;
