@@ -26,7 +26,7 @@ namespace Tween
         [Min(-1)]
         [SerializeField] private int _loops = 0;
 
-        private ButtonDOTweenAnimation _animation;
+        private Tweener _tweener;
 
 
         protected override void Awake()
@@ -44,21 +44,33 @@ namespace Tween
         private void InitRectTransform()
         {
             _rectTransform ??= GetComponent<RectTransform>();
-            _animation = new(_rectTransform, _animationButtonType, _curveEase, _duration, _strength, _loopType, _loops);
         }
 
         public override void OnPointerClick(PointerEventData eventData)
         {
             base.OnPointerClick(eventData);
-            _animation.ActivateAnimation();
+            ActivateAnimation();
         }
 
-        [ContextMenu(nameof(ButtonDOTweenAnimation.ActivateAnimation))]
-        private void ActivateAnimation() =>
-            _animation.ActivateAnimation();
+        [ContextMenu(nameof(ActivateAnimation))]
+        public void ActivateAnimation()
+        {
+            StopAnimation();
 
-        [ContextMenu(nameof(ButtonDOTweenAnimation.StopAnimation))]
-        private void StopAnimation() =>
-            _animation.StopAnimation();
+            _tweener = _animationButtonType switch
+            {
+                AnimationButtonType.ChangeRotation => _rectTransform.DOShakeRotation(_duration, Vector3.forward * _strength),
+                AnimationButtonType.ChangePosition => _rectTransform.DOShakeAnchorPos(_duration, Vector2.one * _strength),
+                _ => default,
+            };
+
+            _tweener.SetEase(_curveEase).SetLoops(_loops, _loopType);
+        }
+
+        [ContextMenu(nameof(StopAnimation))]
+        public void StopAnimation()
+        {
+            _rectTransform.DOKill(_rectTransform);
+        }
     }
 }
