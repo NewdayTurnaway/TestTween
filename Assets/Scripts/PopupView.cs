@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace Tween
 {
-    internal class PopupView : MonoBehaviour
+    internal sealed class PopupView : MonoBehaviour
     {
         [Header("Components")]
         [SerializeField] private Button _buttonClosePopup;

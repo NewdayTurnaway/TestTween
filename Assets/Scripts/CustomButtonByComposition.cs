@@ -6,7 +6,7 @@ namespace Tween
 {
     [RequireComponent(typeof(Button))]
     [RequireComponent(typeof(RectTransform))]
-    public class CustomButtonByComposition : MonoBehaviour
+    internal sealed class CustomButtonByComposition : MonoBehaviour
     {
         [Header("Components")]
         [SerializeField] private Button _button;
@@ -17,7 +17,11 @@ namespace Tween
         [SerializeField] private Ease _curveEase = Ease.Linear;
         [SerializeField] private float _duration = 0.6f;
         [SerializeField] private float _strength = 30f;
+        [SerializeField] private LoopType _loopType = LoopType.Restart;
+        [Min(-1)]
+        [SerializeField] private int _loops = 0;
 
+        private ButtonDOTweenAnimation _animation;
 
         private void OnValidate() => InitComponents();
         private void Awake() => InitComponents();
@@ -29,24 +33,18 @@ namespace Tween
         {
             _button ??= GetComponent<Button>();
             _rectTransform ??= GetComponent<RectTransform>();
+            _animation = new(_rectTransform, _animationButtonType, _curveEase, _duration, _strength, _loopType, _loops);
         }
-
 
         private void OnButtonClick() =>
-            ActivateAnimation();
+            _animation.ActivateAnimation();
 
-        private void ActivateAnimation()
-        {
-            switch (_animationButtonType)
-            {
-                case AnimationButtonType.ChangeRotation:
-                    _rectTransform.DOShakeRotation(_duration, Vector3.forward * _strength).SetEase(_curveEase);
-                    break;
+        [ContextMenu(nameof(ButtonDOTweenAnimation.ActivateAnimation))]
+        private void ActivateAnimation() =>
+            _animation.ActivateAnimation();
 
-                case AnimationButtonType.ChangePosition:
-                    _rectTransform.DOShakeAnchorPos(_duration, Vector2.one * _strength).SetEase(_curveEase);
-                    break;
-            }
-        }
+        [ContextMenu(nameof(ButtonDOTweenAnimation.StopAnimation))]
+        private void StopAnimation() =>
+            _animation.StopAnimation();
     }
 }
